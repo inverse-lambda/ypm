@@ -1,36 +1,42 @@
 use std::env;
+mod parser;
 
-fn help() {
-	println!("Inverse Lambda's manager
+fn print_help() {
+	println!("
+Inverse Lambda Manager
+----------------------
 
-USAGE: 
-	y [TOOLS] [OPTIONS]
+USAGE:  
+        y [TOOLS] [OPTIONS]
 
-OPTIONS:
-	-h, --help				Prints help information
-	
 TOOLS:
-	build, b				Compile or transpile the current package
-	
+        build, b        Compile the current package
+        
+OPTIONS:
+        -h, --help      Prints help information
 ");
 }
 
-fn main() {
+fn main() -> std::io::Result<()> {
 	let args: Vec<String> = env::args().collect();
 	
-	// no arguments passed
+	// No arguments
 	if args.len() <= 1 {
-		help();
-		return;
+		print_help();
+		return Ok(());
 	}
 	
-	// any other number of arguments
+	// Some argument(s)
 	match args[1].as_str() {
 		
 		"build" | "b"  => {
-			println!("TODO: build!");
+			let current_dir = env::current_dir()?;
+			let target_path = std::path::PathBuf::from("demo/build.y");
+			parser::parse(target_path, current_dir)
 		}
 		
-		_ => { help(); }
+		_ => { print_help(); }
 	}
+	Ok(())
 }
+
