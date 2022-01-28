@@ -21,6 +21,39 @@ Some Component:
         asdf"Genau so auch mit "kostantem Text" in dem auch die geschwungenen Klammern { und } buchstäblich genommen werden.asdf"
         ""Ein weiterer gültiger Bezeichner könnte der doppelte Anführungsstrich sein, dieser darf dann aber nicht im Text doppelt vorkommen!""
 
+        Wert: |Weitere Überlegung für mehrzeiligen Text:
+              |
+              |   Dieser könnte zB dadurch dass er nicht in selbiger Zeile geendet hat,
+              |   implizit erwarten dass er mehrzeilig ist und nicht direkt determiniert wird,
+              |   sondern bis zum letzten Vorkommen der Zeile mit Pipe-Symbol (\|) weitergehen.
+              |   Dies wäre möglich, weil Daten nicht in sich ohne Labels geführt werden, bzw.
+              |   bei Aufzählung in einer Liste müsste ein Sonderzeichen (-) verwendet werden!
+
+        Mehrere Werte
+            - |Text der einfach weiter geht, muss dieser eigentlich terminiert werden?
+            - |Ich finde nicht, eigentlich ist auch so klar, dass ein neuer Punkt hier
+              |begonnen wurde, der sich auch über mehrere Zeilen ziehen kann ... hmmmm
+            - |Wäre eine terminierung in diesem Fall ggfs optional dennoch möglich?|
+            - |Oder wäre eine solche eher verwirrend? Weiterarbeit in der Zeile wäre möglich!
+            - |Somit könnten auch Parameter wie {:0} als suffixe übergeben werden|{"Dieser"} // <- nicht so klar imho
+
+        Anderes Zeichen für mehrere Werte evtl
+            [] 12.3
+            [] |Text|
+            [] |Mehrzeiliger Text
+               |evtl etwas unklarer als der Bindestrich auch wenn zugehörig bzw assoziierbar mit []
+            [] "Unklar ob gut so" // Mischformen evtl auch schlecht (also | und " erlaubt), vielleicht " ohne Parameter
+            [] "Oder {:0} in Anführungsstrichtexten Parameter erlauben"{:"nur"} // <- milder Brechreiz / eher nicht
+            [] |Vielleicht besser einfach keine unmittelbar nachgestellten Parameter? Wo notwendig? Nur {:Platzhalter}!|
+            [] Mehrdimensional auch möglich
+                [] |Eins
+                [] |Zwei
+                [] Variable
+                [] |Vier
+                   |also innherhalb der Unterkategorie zumindest, somit quasi [6][3] oder [+6][+3] oder [*7][*4]
+
+
+
 
 // Kategorien von Methoden (implizit ermittelt, nicht ausdrücklich festgelegt und durch Refactor mit viel Sideeffects auch gewollt)
 // - Compile-Time fixed (nur Konstanten, statischer Text, etc.)

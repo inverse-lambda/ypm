@@ -79,6 +79,7 @@ Main:
         // Oder Pfeil einfach (NUR) erforderlich wenn in nächster Zeile, auf vorherige Zeile bezogen!? (um nicht als eigene Instruktion zu gelten)
     'kompon 123 + 231 nentenname as is': 42
 
+    // .. ggfs gut als Referenz auf oberste Ebene in einem File (ähnlich "this")
 
     filter otherfunc (x%2 == 1) -> fold // würde filter oder otherfunc gefolded?
     filter: x%2 == 1

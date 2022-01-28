@@ -1,4 +1,5 @@
-# Es gibt kein "vererben vs instanzieren"!
+# 1) Es gibt kein "vererben vs instanzieren"!
+# 2) Betonung auf "compile-time generics"!
 
 Activity
     = Base: BaseActivityRoutine // interface bzw "semi-instanzierte Basisklasse"
@@ -33,8 +34,32 @@ Activity
 
 MyActivity
     = Activity
-    @ 
+    @ Start:
+        
+        Db.GetUsers(NewUserListReceived) # handler, implizit eindeutig genug ??? (TODO: Varianten prüfen!!)
+        # auch möglich: "Db.GetUsers: @ Result:" aber wegen "=Result" Kurzform möglich
+        
+        # auch möglich lambda
+        Db.GetUsers =>
+            benutzerListe.Clear()
+            benutzerListe.AddAll(.)
+        # => Error // ??
 
+    @ NewUserListReceived:
+        benutzerListe.Clear()
+        benutzerListe.AddAll(.: []Benutzer) # aktuellen (NewUserListReceived) Parameter übergeben, dieser muss Liste von Benutzern sein!
+            
+    Ein Text: lorem ipsum est ... # möglich irgendwie sinnvoll ohne Anführungsstriche? Befürchte eher nicht ...
+    DURCH GROSSSCHREIBEN IST WERT KONSTANT: True
+
+
+Db.GetUsers:
+    = Result: []
+
+# benutzerListe eigentlich ein Widget, aber veranschaulicht:
+BenutzerListe
+    @ Clear:  BenutzerListe = []
+    @ AddAll: BenutzerListe += .
 
 
 
