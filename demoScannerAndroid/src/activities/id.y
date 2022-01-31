@@ -18,11 +18,20 @@ Activity: `https://inverse-lambda.com/android@1.0/activity` // das eigentlich li
             Do Some()
         ~ Negation ?
             Do Some Else()
-        ? Another Boolean ?
+        ? Another Boolean ?     // evtl automatisch via IDE zur spanischen Notation umwandeln?
             Also do Something()
-  
+        = Yet Another ?
+            Also do Some Else()
+        ? (App.UserInfo != ∅)   // auch direkt möglich mit Klammern die "Evaluierung" andeuten
+
         User Logged In
-            = (App.UserInfo != ∅)
+            = (App.UserInfo != ∅) // evtl als alternative zwei Nullen (00) um ohne IDE zu können bzw null überhaupt sinnvoll??
+                                  // stattdessen könnte "boolean negativ" und "null" ident sein, somit simpler "nicht-check"??
+            ~ App.UserInfo        // <- evtl zu stark vereinfacht? 
+                                  // (hier nur als Demo, für diesen Wert "falsch" => da nicht doppelt verneint)
+
+        ~ App.UserInfo
+            Do some when UserInfo is not set()
 
     @ Load User Info
         ... // evtl Platzhalter funktional ähnlicher zu Python `pass`
