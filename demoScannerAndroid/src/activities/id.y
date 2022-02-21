@@ -1,10 +1,14 @@
-Activity: `https://inverse-lambda.com/android@1.0/activity` // das eigentlich lieber nicht hier => Linkage?
+// () stehen für Evaluierung, entweder direkter synchroner aufruf in @ (Methoden), oder für auflösung von contitionals, etc.
+
+
+< Activity: `https://inverse-lambda.com/android@1.0/activity` // das eigentlich lieber nicht hier => Linkage?
 
 .
     = Activity
     = LayoutId: R.id.activity.main // LayoutId ist Label oder Typ? Oder Label ist immer ein inherenter Typ?
+    NavDrawer: Android.NavDrawer // ??
 
-    @ OnCreate
+    @ Activity. bOnCreate
         Activity.SetContentView(=) // SetContentView erwartet eine Art von LayoutId (oder dessen Supertyp)!
         Activity.SetContentView(.) // Punkt vs Strich hmmmm, = wäre etwas stärker visuell ersichtlich imho.
         ? User Logged In
@@ -14,9 +18,9 @@ Activity: `https://inverse-lambda.com/android@1.0/activity` // das eigentlich li
             Show Alt Text For Not Logged In User ()
 
         // Alternatives?
-        ¿ Question ?
+        ¿ Variable ?
             Do Some()
-        ~ Negation ?
+        ~ Variable ?
             Do Some Else()
         ? Another Boolean ?     // evtl automatisch via IDE zur spanischen Notation umwandeln?
             Also do Something()
@@ -33,6 +37,39 @@ Activity: `https://inverse-lambda.com/android@1.0/activity` // das eigentlich li
         ~ App.UserInfo
             Do some when UserInfo is not set()
 
+        // At Varianten unterm strich für Conditionals nicht optimal imho
+        @ (Variable - 12 == 1).True
+            DoSomethingIfExpIsTrue()
+        @ (Variable - 12).Equals(1)
+            DoSomethingIfExpIsTrue()
+        @ ~
+            OtherwiseDoSomeElse() // ?
+
+        ? (Condition == OtherCondition)
+            DoSomeIfTheyAreEqual()
+        ?~: OtherwiseDoThis()
+        // Aber sind eigene Conditionals/Loops in eigener Syntax überhaupt notwendig???
+
+        SomeBooleanVariable.True = {
+            DoThis()
+        }
+        (13 - 40 == 33).False:
+            dsfasdf()
+            asdffdsf()
+        @ (13 - 40 == 33).True
+            dsfasdf()
+            asdffdsf()
+        ? (13 - 40 == 33).False // ?? kurz für 13.Minus(40).Equals(33).False ??
+            dsfasdf()
+            asdffdsf()
+        ? (13 - 40 != 33) // implizit für `.True`, ein solcher Wert muss ableitbar sein
+            dsfasdf()
+            asdffdsf()
+
+        ? EineVariable // gleichbedeutend mit `EineVariable.True`
+            istWohlWahr()
+
+
     @ Load User Info
         ... // evtl Platzhalter funktional ähnlicher zu Python `pass`
 
@@ -40,3 +77,16 @@ Activity: `https://inverse-lambda.com/android@1.0/activity` // das eigentlich li
 
 InventurActivity
     = Activity
+
+
+
+Elment:
+    Unterelemnt
+    Noch ein Unterelement
+
+    @ OnClick
+        Methode ()
+        Andere Methode ()
+
+    @ OnBlur
+        ?  

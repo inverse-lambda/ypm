@@ -1,20 +1,20 @@
-AndroidRenderer: 
+AndroidRenderer 
   activities: renderer.ActivityRenderer
   resources:  renderer.ResourceRenderer
 
 ----------------------------------------
 
-Bestandsdaten:
+Bestandsdaten
   // :init // implizit?
   some: ? init==success ? passt : nicht
 
-Bestandsdaten.DatenLaden:
+Bestandsdaten.DatenLaden
   lager: ui.comboBoxLager.SelectedValue 
   // !ui.gridArtikelliste.Columns.(ui.Lagername.Spaltenbezeichnung).Visible = (lager.lagerId == 0)
   // == wird in visueller Repräsenatation mal anders ausschauen
   !ui.gridArtikelliste.Columns.LagerNr.Visible = (lager.lagerId == 0) 
 
-Bestandsdaten.DatenLaden:
+Bestandsdaten.DatenLaden
 - Ausgewähltes Lager abrufen
 - Eingestellten Spezialfilter abrufen
 - Lagerspalte ausblenden falls keines ausgewählt
@@ -45,3 +45,11 @@ Bestandsdaten.laden!
 
   Lagerspalte ausblenden:
     !ui.gridArtikelliste.Columns.LagerNr.Visible = false // implizit auch einblenden falls doch, hier nicht berücksichtigt!!
+
+  -- testi 1234
+  #a: b
+  // Zeile bis Ende
+
+  ○
+  a→→→😂b
+  x

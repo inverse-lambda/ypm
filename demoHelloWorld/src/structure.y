@@ -25,6 +25,8 @@ Activity
         HelperMethodCall
         + SomethingElse
 
+    HALLO IRGENDWAS: 14
+
     + SomeThirdMethod
         - YetAnotherSubThingie
             WithYetAnotherSubSub

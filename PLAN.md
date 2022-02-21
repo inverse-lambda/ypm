@@ -24,3 +24,10 @@ Some of the main open decisions are:
   - reference or both-sided continuous evaluation with equals?
 - Syntactic discrepancy between referencing types and their instantiations
 - Ambiguity of dot (`.`) syntax for `this` as well as member selector
+
+
+## Reference Languages
+
+- Squeak/Newsqueak/Go (Concurrency)
+- Rust
+- 
