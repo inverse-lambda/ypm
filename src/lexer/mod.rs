@@ -11,8 +11,8 @@ type IndentSize = RowNumber;   // limits max number of allowed indent space valu
 
 
 const END_OF_STRING: char = 0x00 as char;
-const INDENT_VALUE_INCREMENT_PER_SPACE: IndentSize = 1;
-const INDENT_VALUE_INCREMENT_PER_TAB:   IndentSize = 1; // ggfs auf Dauer nicht so simpel lassen?
+//const INDENT_VALUE_INCREMENT_PER_SPACE: IndentSize = 1;
+const INDENT_SPACE_INCREMENT_PER_TAB:   IndentSize = 4;
 //const INDENT_FIXED_TAB_TO_SPACES_CONVERSION_LENGTH: IndentSize = 1; // ggfs auf Dauer nicht so simpel lassen?
 const MAX_SOURCE_FILE_SIZE: u64 = 4294967295; // u32::MAX = 4294967295
 
@@ -148,23 +148,32 @@ impl Lexer {
     /// 
     fn inline_comment(&mut self) {
         let str = self.until('\n');
-        println!("Comment: {}", str)
+        log::trace!("Lex comment: {}", str)
     }
 
     fn lex_linebreak_with_indent(&mut self) {
         self.line_count += 1;
         self.position_of_last_linebreak = self.position;
         //let (mut tabs, mut spaces): (IndentSize, IndentSize) = (0, 0);
-        let mut spaces: IndentSize = 0;
+        let mut total_spaces: IndentSize = 0;
+        let mut previous_spaces: IndentSize = 0;
         loop {
             match self.peek_next() {
-                ' '  => spaces += INDENT_VALUE_INCREMENT_PER_SPACE,
-                '\t' => spaces += INDENT_VALUE_INCREMENT_PER_TAB,
+                ' '  => { 
+                    total_spaces += 1;
+                    previous_spaces += 1;
+                    // there might be a better - yet to develop - lambda-ish pattern for above increments
+                },
+                '\t' => {
+                    // INFO: consume previous spaces that are not an exact multiple of the fixed tab size
+                    total_spaces += INDENT_SPACE_INCREMENT_PER_TAB - (previous_spaces % INDENT_SPACE_INCREMENT_PER_TAB);
+                    previous_spaces = 0;
+                },
                 _ => break,
             }
             self.position += 1;
         }
-        println!("Indent size: {}", spaces); // TODO: DEBUG LOG/LEVELS
-        self.push_token(Token::Indent{spaces: spaces}); // INFO: rowNumber = letztes Zeichen, nicht erstes!!
+        log::trace!("Lex indent size: {}", total_spaces); // TODO: DEBUG LOG/LEVELS
+        self.push_token(Token::Indent{spaces: total_spaces}); // INFO: rowNumber = letztes Zeichen, nicht erstes!!
     }
 }

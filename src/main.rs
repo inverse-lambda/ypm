@@ -1,9 +1,12 @@
 use std::env;
+use thiserror::Error;
 
 mod parser;
 mod util;
 
 const VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 fn print_help() {
   println!("
@@ -27,102 +30,85 @@ TOOL:
 ", VERSION.unwrap_or("unknown"));
 }
 
-use thiserror::Error;
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #[derive(Debug, Error)]
 pub enum MainError {
-    //#[error("Unknown tool name: {tool:}")]
+
     #[error("No such tool: `{tool:}`")]
     UnknownToolError {tool: String},
-    //#[error(transparent)]
-    //AnyhowError(#[from] anyhow::Error),
+
     #[error(transparent)]
     ParseError(#[from] parser::ParseError)
 }
 
-// impl std::convert::From<anyhow::Error> for MainError {
-//     fn from(err: anyhow::Error) -> Self {
-//         MainError::AnyhowError(err)
-//     }
-// }
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-// impl From<anyhow::Error> for MainError {
-//     fn from(err: anyhow::Error) -> MainError { MainError::AnyhowError(err) }
-// }
-// impl<T, U> Into<U> for T
-// where
-//     U: From<T>,
-// {
-//     fn into(self) -> U {
-//         U::from(self)
-//     }
-// }
-
-fn main() { // { //anyhow::Result<()> { //Result<(), Box<dyn std::error::Error>> {
+fn main() {
     let args: Vec<String> = env::args().collect();
     let mut tool_args_pos = 0;
-    //let c = commandlines::Command::new();
-    //let mut chosen_tool: Tool;
-
-    // Logging
-    //if args.contains("-v") || args.contains("--verbose")
-    set_max_log_level(log::LevelFilter::Info);
-
-    // // No arguments
-    // if args.len() <= 1 {
-    //     print_help();
-    //     return Ok(());
-    // }
-
+    let mut log_level: log::LevelFilter = log::LevelFilter::Info;
+    //set_max_log_level(log::LevelFilter::Trace);
     //let tool = args.iter().position(|a| !a.starts_with('-'));
     //log::info!("Tool Pos: {:?}, Args: {:?}",tool, args);
+    
+    // if log::log_enabled!(log::Level::Info) {
+    //     println!("- max level: {:?} -", log::max_level());
+    // }
 
     // [OPTIONS] (several)
     for i in 1..args.len() { 
         match args[i].as_str() {
-            "-v" | "--verbose"  => { set_max_log_level(log::LevelFilter::Debug); },
-            "-vv"               => { set_max_log_level(log::LevelFilter::Trace); },
+            "-v" | "--verbose"  => { log_level = log::LevelFilter::Debug; }, // -v  also shows debug messages
+            "-vv"               => { log_level = log::LevelFilter::Trace; }, // -vv also shows trace messages
             _ if !args[i].starts_with('-') => { tool_args_pos = i; break; },
             _ => { }
         }
     }
 
-    // No [TOOL] specified
-    if tool_args_pos == 0 {
-        print_help();
-        return ();
-    }
+    // [LOGGING] Set log level
+    util::log::init(log_level);
 
     // [TOOL] (only one)
     if let Err(e) = select_tool(args, tool_args_pos) {
-        //eprintln!("{:#?}", e);
-        log::info!("{:}", e.to_string());
+        
+        // Simple error message
+        log::error!("{:}", e.to_string());
+
+        // Full error (only in non-optimized builds)
+        if cfg!(debug_assertions) { //&& log::log_enabled!(log::Level::Debug) {
+            log::error!("{:#?}", e); 
+        } 
+        
+        // Exit non-zero code
         std::process::exit(1)
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Select which tool to use
+ */
 fn select_tool(args: Vec<String>, tool_args_pos: usize) -> Result<(), MainError> { 
+    
+    // No [TOOL] specified
+    if tool_args_pos == 0 {
+        log::trace!("No tool specified.");
+        print_help();
+        return Ok(());
+    }
+
     match args[tool_args_pos].as_str() {
 
-        "build" | "b"  => { return build(args[tool_args_pos..].to_vec()).map_err(|e| e.into()); },
+        "build" | "b"  => { log::trace!("Tool: BUILD"); return build(args[tool_args_pos..].to_vec()).map_err(|e| e.into()); },
 
         _ => { return Err(MainError::UnknownToolError{tool:args[tool_args_pos].to_owned()}); }
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/**
- * Setting the maximum displayed logging level
- */
-pub fn set_max_log_level(log_level: log::LevelFilter) {
-    if let Err(e) = log::set_logger(&util::log::LOGGER)
-        .map(|()| log::set_max_level(log_level)) {
-        panic!("Unable to set log level to {}: {:?}", log_level, e)
-    }
-    log::debug!("Set log level: {}", log_level);
-}
 
 pub fn build(args: Vec<String>) -> Result<(), parser::ParseError> {
 
