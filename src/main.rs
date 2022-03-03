@@ -25,10 +25,12 @@ OPTIONS:
 
 TOOL:
         build, b                    Compile the current package
-        build, b  [PATH]            Compile the denoted package
-        
+        build, b [PATH]             Compile the denoted package
+
 ", VERSION.unwrap_or("unknown"));
 }
+// Consider: Allow build already with program specific arguments? (like `cargo run [args..]`) -> rather solely for a separate run command?
+//         build, b [PATH] [ARGS...]   Compile the denoted package and supply some arguments for it
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +62,8 @@ fn main() {
     for i in 1..args.len() { 
         match args[i].as_str() {
             "-v" | "--verbose"  => { log_level = log::LevelFilter::Debug; }, // -v  also shows debug messages
-            "-vv"               => { log_level = log::LevelFilter::Trace; }, // -vv also shows trace messages
+            "-vv"| "v" /*temp*/ => { log_level = log::LevelFilter::Trace; }, // -vv also shows trace messages
+            
             _ if !args[i].starts_with('-') => { tool_args_pos = i; break; },
             _ => { }
         }
@@ -76,7 +79,7 @@ fn main() {
         log::error!("{:}", e.to_string());
 
         // Full error (only in non-optimized builds)
-        if cfg!(debug_assertions) { //&& log::log_enabled!(log::Level::Debug) {
+        if cfg!(debug_assertions) && log::log_enabled!(log::Level::Debug) {
             log::error!("{:#?}", e); 
         } 
         

@@ -18,6 +18,8 @@ A build system and package manager for the Inverse Lambda (y?) programming langu
   - [ ] Unambiguous notation: `*` vs `[]` vs `-`
   - [ ] Dicts vs Lists / {} vs [] / named vs unnamed elements!!! (one of them as default?)
 - [ ] `@` for sequential flow (also insert order relevant lists?????)
+- [ ] Nullable variables, need to be specified as `enum`s of their type, plus an additional value (individually named, e.g. `null`) 
+- [ ] 
 
 
 ## Big Open Questions
