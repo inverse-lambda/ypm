@@ -60,7 +60,7 @@ impl Lexer {
             source: source.chars().collect(),
             position: 0,
             position_of_last_linebreak: 0,
-            line_count: 0,
+            line_count: 1, // line number count is not zero based
             tokens: Vec::new(),
         }
     }
@@ -80,19 +80,20 @@ impl Lexer {
             });
         }
 
+        self.lex_linebreak_and_indent();
         while self.source.len() > self.position {
             let c = self.source.get(self.position).unwrap();
             //let num: u64 = c.to_string().parse().expect("not a number");
             //let next = self.peek_next(); // nicht generell nötig
             match c {
                 //'#' => self.inline_comment(), // possibly annotations?
-                '-' if self.peek_next() == '-' => self.inline_comment(),
-                '/' if self.peek_next() == '/' => self.inline_comment(),
+                '-' if self.peek_next() == '-' => self.lex_comment_inline(),
+                '/' if self.peek_next() == '/' => self.lex_comment_inline(),
                 //'/' if self.next_char()=='*' => self.comment_until("*/"),
                 '=' => self.push_token(Token::Equal),
                 ':' => self.push_token(Token::Assign),
 
-                '\n' => self.lex_linebreak_with_indent(),
+                '\n' => { self.lex_linebreak_and_indent(); continue; },
                 '\r' | ' ' | '\t' => {} // self.igonre_whitespace(c)
 
                 // Control characters
@@ -103,11 +104,22 @@ impl Lexer {
                 // Other identifier, type, lable, etc.
                 _ => {
                     //let mut buffer: Vec<char> = Vec::<char>::new();
-                    let mut identifier: String = String::new();
-                    // while self.peek_next() != ':' {
-
-                    //     self.position += 1;
-                    // }
+                    
+                    let mut label: String = String::new();
+                    loop {
+                        if self.position >= self.source.len() {
+                            break;
+                        }
+                        let ch = *self.source.get(self.position).unwrap(); //self.peek_next();
+                        if ch==':' || ch=='\n' {
+                            self.position -= 1;
+                            break;
+                        }
+                        //label = concat_string!(label, ch);
+                        label.push(ch);
+                        self.position += 1;
+                    }
+                    log::trace!("Lex label: {}", label);
 
                     //println!("Lex unexpected: {}", c)
                     // println!("{} - {}", c, *c as u32),
@@ -121,7 +133,7 @@ impl Lexer {
 
     ////////////////////////////////////////////////////////////////////////////
 
-    fn peek_next(&self) -> char {
+    #[inline(always)] fn peek_next(&self) -> char {
         if self.position < self.source.len() - 1 {
             // this way around to not overflow when usize == u32 (with maxed out file size)
             *self.source.get(self.position + 1).unwrap()
@@ -131,7 +143,33 @@ impl Lexer {
         }
     }
 
-    fn until(&mut self, stop: char) -> String {
+    // /**
+    //  * Gives the character at position, and increments the position.
+    //  * WARN: Does not check for bounds of `position > source.len()`!
+    //  */
+    // #[inline(always)] fn consume(&mut self) -> char { 
+    //     let current_position = self.position;
+    //     self.position += 1;
+    //     *self.source.get(current_position).unwrap()
+    // }
+
+    #[inline(always)] fn current_char(&self) -> char { 
+        if self.position >= self.source.len() { END_OF_STRING }
+        else { *self.source.get(self.position).unwrap() }
+    }
+
+    /**
+     * Gives the character at position, and increments the position.
+     * INFO: Checks for source.len() and returns EOF (0x00) in case!
+     */
+    #[inline(always)] fn safe_consume(&mut self) -> char { 
+        let current_position = self.position;
+        self.position += 1;
+        if current_position >= self.source.len() { END_OF_STRING }
+        else { *self.source.get(current_position).unwrap() }
+    }
+
+    #[inline(always)] fn until(&mut self, stop: char) -> String {
         let mut str: String = String::new();
         loop {
             let chr = *self.source.get(self.position).unwrap();
@@ -143,12 +181,11 @@ impl Lexer {
         }
     }
 
-    #[inline]
-    fn get_current_row_number(&self) -> RowNumber {
+    #[inline(always)] fn get_current_row_number(&self) -> RowNumber {
         (self.position - self.position_of_last_linebreak) as RowNumber
     }
 
-    fn push_token(&mut self, token: Token) {
+    #[inline(always)] fn push_token(&mut self, token: Token) {
         let line_number: LineNumber = self.line_count;
         let row_number: RowNumber = self.get_current_row_number();
         self.tokens
@@ -159,31 +196,48 @@ impl Lexer {
 
     ////////////////////////////////////////////////////////////////////////////
     ///
-    fn inline_comment(&mut self) {
+    fn lex_comment_inline(&mut self) {
         let str = self.until('\n');
+        // Set position back to last linebreak/EOF (except for an empty file)
+        if self.position > 0 { 
+            self.position -= 1; 
+        }
         log::trace!("Lex comment: {}", str)
     }
 
-    fn lex_linebreak_with_indent(&mut self) {
-        self.line_count += 1;
-        self.position_of_last_linebreak = self.position;
+    fn lex_linebreak_and_indent(&mut self) {
+        //self.line_count += 1;
+        //self.position_of_last_linebreak = self.position;
         //let (mut tabs, mut spaces): (IndentSize, IndentSize) = (0, 0);
         let mut total_spaces: IndentSize = 0;
         let mut previous_spaces: IndentSize = 0;
         loop {
-            match self.peek_next() {
+            match self.current_char() { //self.safe_consume() { //self.peek_next() {
                 ' ' => {
                     total_spaces += 1;
                     previous_spaces += 1;
                     // there might be a better - yet to develop - lambda-ish pattern for above increments
-                }
+                },
                 '\t' => {
                     // INFO: consume previous spaces that are not an exact multiple of the fixed tab size
                     total_spaces += INDENT_SPACE_INCREMENT_PER_TAB
                         - (previous_spaces % INDENT_SPACE_INCREMENT_PER_TAB);
                     previous_spaces = 0;
-                }
-                _ => break,
+                },
+                '\r' => {}, // ignore carriage returns in itself
+                '\n' => {   // line-feed before any data => next
+                    self.line_count += 1;
+                    self.position_of_last_linebreak = self.position;
+                    total_spaces = 0;
+                    previous_spaces = 0;
+                },
+                END_OF_STRING => return, // nothing left to track
+                _ => { /* self.position = 
+                    if self.position > 1 { self.position-2 } 
+                    else { 0 }; */
+                    log::trace!("New content at line: {}", self.line_count);
+                    break; 
+                },
             }
             self.position += 1;
         }
