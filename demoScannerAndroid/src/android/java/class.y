@@ -5,7 +5,7 @@ Class@'''
     {Package}
     {Imports}
     {Visibility}{Abstract}class {Name}{Extends}{Implements}{{
-        {Body}
+        {Body} 
     }}'''
 
 
