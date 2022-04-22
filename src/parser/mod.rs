@@ -1,13 +1,13 @@
 //pub mod parse;
 
-mod ast;
+//mod ast;
 
 // use std::io::BufRead;
 // use std::io::BufReader;
 // use std::fs::File;
 use std::{path::PathBuf, process::Command};
 use thiserror::Error;
-use y::lexer::Lexer;
+use y::lexer::{Lexer, Token};
 
 //use std::env;
 //use anyhow::{/*Context,*/ Result}; // with_context()
@@ -79,7 +79,13 @@ fn file_to_ast(path: PathBuf) -> Result<(), ParseError> {
     //         error: err,
     //     });
     // }
-    while let Some(item) = lexer.next_token() {}
+    let mut indent = 0;
+    while let Some(item) = lexer.next_token() {
+        match item.token {
+            Token::Indent { spaces } => indent = spaces,
+            _ => todo!("implement"),
+        }
+    }
 
     //let ast = ast::Ast::new(lexed_items.unwrap());
 

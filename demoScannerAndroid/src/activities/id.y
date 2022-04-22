@@ -37,10 +37,53 @@
         ~ App.UserInfo
             Do some when UserInfo is not set()
 
+
+        // Switch/Elseif Statement Usage
+        ? New Token
+            == Value1: ...
+            == Value2:
+                Do Something()
+            == Anything: // <- bessere Signatur für "Default" finden (kein Schlüsselwort)
+            ~: // <- evtl??
+        ? New Token
+            Value1 => ...
+            Value2 =>
+                Do Something()
+            _ => // sehr sehr Rust-ish, aber eigentlich hübsch
+        // NOTE: Rust-lamdamäßig ist u.a. auch hübsch weil die Ähnlichkeit zu "anonymen Funktionen" andeutet, dass diese Dinge nur optional aufgerufen werden!!
+
+        ? New Token
+            Value1: ...
+            Value2: // nicht ganz so klar imho
+                Do Something()
+            _: // ...
+        
+        // "Switch/Match" Assignment [ggfs nur in Methodenbody - klare Trennung?!?!?!?!?!]
+        Assign to a variable =? New Token
+            Value1 => ...
+            Value2 =>
+                Some Resulting Value() // dadurch dass eine Funktion (an unterschdl stellen) mehrere Typen zurück gibt, Rückgabewert = Enum aus diesen(??) (("anonymes Enum"))
+            _ => 0 // bei Assignment(???) müssen alle möglichen Werte ausgeschöpft werden!!!
+
+        // Assignen einer anonymen Methode (lazy/später/individuell ausgeführt)
+        @Methode die aktuellen Wert zurück gibt: @? New Token
+            Value1 => ...
+            Value2 =>
+                ...
+            * => 0 // * ist als wildcard schon sehr intuitiv eigentlich, vs ~ oder _
+            => 0   // nichts allerdings ggfs auch
+
+        // Ggfs Switch als offenes Statement (manche werden sich brutal an unballanced Brackets stören, hmm..)
+        Assign to a variable = New Token.Equals(
+            Value1) ...
+            Value2) 
+                Some Resulting Value()
+            *) 0
+
         // At Varianten unterm strich für Conditionals nicht optimal imho
-        @ (Variable - 12 == 1).True
+        @ (Variable - 12 == 1).True:
             DoSomethingIfExpIsTrue()
-        @ (Variable - 12).Equals(1)
+        @ (Variable - 12).Equals(1):
             DoSomethingIfExpIsTrue()
         @ ~
             OtherwiseDoSomeElse() // ?
@@ -68,6 +111,25 @@
 
         ? EineVariable // gleichbedeutend mit `EineVariable.True`
             istWohlWahr()
+
+        ? Eine Variable
+            => tueEtwas()      // ?
+            !> tueWasAnderes() // ??
+
+        ? Eine Variable.HasValue()
+        ? Eine Variable.True()
+            ✓ tueEtwas()      // ?
+            x tueWasAnderes() // ??
+            ✅ tueEtwas()
+            ❌ tueWasAnderes()
+
+        Eine Variable ? tueEtwas() : tueWasAnderes()
+        Eine Variable // initiales Fragezeichen schon visuell hilfreich!
+            ? tueEtwas()
+            : tueWasAnderes() 
+
+        ? Eine Variable => tueEtwas() // !
+        ?~Eine Variable => theWasAnderes()
 
 
     @ Load User Info

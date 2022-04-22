@@ -22,6 +22,9 @@ A build system and package manager for the Inverse Lambda (y?) programming langu
 - [ ] RESTSRICTIONS: parameter & variable limitations to put on functions?
   - [ ] Possibly similar to early (if ... return;) 
   - [ ] With optional exit-call-method!
+- [ ] Keine default "nullable" Variablen (ähnlich Rust), dafür Option<Type> (ähnlich Rust)
+  - [ ] Bei Auslassen von Parametern bei Aufruf(/Instantierung) => kein Aufruf (??), außer diese haben Option/Defaultwert
+    - [ ] Fallback/Exceptionmöglichkeit?
 
 
 ## Big Open Questions

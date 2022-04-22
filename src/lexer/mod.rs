@@ -22,9 +22,9 @@ const MAX_SOURCE_FILE_SIZE: u64 = 4294967295; // u32::MAX = 4294967295
 
 #[derive(Debug)]
 pub struct TokenTrace {
-    token: Token,
-    line: LineNumber,
-    row: RowNumber,
+    pub token: Token,
+    pub line: LineNumber,
+    pub row: RowNumber,
     //pos: SourceSize,
 }
 
